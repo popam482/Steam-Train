@@ -11,8 +11,11 @@ GLfloat unghiRoti = 0.0f;
 
 void CALLBACK rotireMouse(AUX_EVENTREC* event) {
     rotY += 0.75f; 
-    unghiRoti += 5.0f; 
-    if (unghiRoti > 360) 
+}
+
+void CALLBACK rotireRoti(AUX_EVENTREC* event) {
+    unghiRoti -= 5.0f;
+    if (unghiRoti > 360)
         unghiRoti -= 360;
 }
 
@@ -312,6 +315,7 @@ int main(int argc, char** argv)
     auxInitPosition(0, 0, 1000, 680);
     auxInitWindow("Mocanita");
     auxMouseFunc(AUX_LEFTBUTTON, AUX_MOUSELOC, rotireMouse);
+    auxMouseFunc(AUX_RIGHTBUTTON, AUX_MOUSELOC, rotireRoti);
     myinit();
     auxReshapeFunc(myReshape);
     auxMainLoop(display);
