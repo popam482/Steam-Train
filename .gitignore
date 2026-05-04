@@ -1,0 +1,19 @@
+
+.vs/
+Debug/
+Release/
+x64/
+*.vcxproj.user
+
+grafica_1/Debug/
+grafica_1/Release/
+
+*.obj
+*.pch
+*.tlog
+*.lastbuildstate
+*.idb
+*.pdb
+*.exe
+
+# *.dll
