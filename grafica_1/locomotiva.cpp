@@ -77,6 +77,74 @@ void CALLBACK display(void)
         glVertex3f(-3.9f, r * sinf(rad) * h_factor, r * cosf(rad) * w_factor);
     }
     glEnd();
+
+
+    float z_perete = 1.49f;
+
+    // USA MECANIC
+    float usa_x1 = -1.25f, usa_x2 = -2.75f, usa_y_b = -1.5f, usa_y_t = 0.5f;
+    float r_usa_bolt = (usa_x1 - usa_x2) / 2.0f;
+    float cx_usa = (usa_x1 + usa_x2) / 2.0f;
+
+    glColor3f(0.12f, 0.12f, 0.12f);
+    glBegin(GL_QUADS);
+    glVertex3f(usa_x1, usa_y_b, z_perete + 0.03f);
+    glVertex3f(usa_x2, usa_y_b, z_perete + 0.03f);
+    glVertex3f(usa_x2, usa_y_t, z_perete + 0.03f);
+    glVertex3f(usa_x1, usa_y_t, z_perete + 0.03f);
+    glEnd();
+    glBegin(GL_POLYGON); // Partea de sus a usii
+    for (int i = 0; i <= 180; i += 10) {
+        float rad = i * 3.14159f / 180.0f;
+        glVertex3f(cx_usa + r_usa_bolt * cosf(rad), usa_y_t + r_usa_bolt * sinf(rad) * 0.7f, z_perete + 0.03f);
+    }
+    glEnd();
+
+    // GEAMURI LATERALE 
+    float rH = 0.5f; 
+    for (int side = 0; side < 2; side++) {
+        float zV = (side == 0) ? z_perete : -z_perete;
+        float offset_z = (side == 0) ? 0.02f : -0.02f;
+
+        float posX = -2.0f;
+
+        // Rama
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glBegin(GL_POLYGON);
+        for (int i = 0; i < 360; i += 20) {
+            float rad = i * 3.14159f / 180.0f;
+            glVertex3f(posX + (rH + 0.05f) * cosf(rad), 1.8f + (rH + 0.05f) * sinf(rad), zV + offset_z);
+        }
+        glEnd();
+
+        // Sticla
+        glColor3f(0.3f, 0.5f, 0.6f);
+        glBegin(GL_POLYGON);
+        for (int i = 0; i < 360; i += 20) {
+            float rad = i * 3.14159f / 180.0f;
+            glVertex3f(posX + rH * cosf(rad), 1.8f + rH * sinf(rad), zV + offset_z * 1.1f);
+        }
+        glEnd();
+    }
+
+    //PARBRIZ
+    // Rama parbriz
+    glColor3f(0.2f, 0.2f, 0.2f);
+    glBegin(GL_QUADS);
+    glVertex3f(0.02f, 1.2f, -1.2f);
+    glVertex3f(0.02f, 1.2f, 1.2f);
+    glVertex3f(0.02f, 2.6f, 1.2f);
+    glVertex3f(0.02f, 2.6f, -1.2f);
+    glEnd();
+    // Sticla parbriz
+    glColor3f(0.3f, 0.5f, 0.6f);
+    glBegin(GL_QUADS);
+    glVertex3f(0.03f, 1.3f, -1.1f);
+    glVertex3f(0.03f, 1.3f, 1.1f);
+    glVertex3f(0.03f, 2.5f, 1.1f);
+    glVertex3f(0.03f, 2.5f, -1.1f);
+    glEnd();
+
     glPopMatrix();
 
     // SASIU (PARTEA INFERIOARA)
