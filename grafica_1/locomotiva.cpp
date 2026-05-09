@@ -14,6 +14,11 @@ GLfloat unghiRoti = 0.0f;
 
 GLint animatieActiva = 0; //0- oprita, 1- pornita
 
+GLfloat fumY = 0.0f; 
+GLfloat fumSize = 0.5f;
+
+GLint tipCamera = 0; // 0 - Normal, 1 - Din spate/lateral, 2 - de sus, 3 - din fata
+
 void CALLBACK mutaStanga(void) { 
     tX -= 0.1f;
     unghiRoti += 5.0f; 
@@ -42,10 +47,34 @@ void CALLBACK display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -20.0f);
+    //glTranslatef(0.0f, 0.0f, -20.0f);
 
-    glRotatef(rotX, 1.0, 0.0, 0.0);
-    glRotatef(rotY, 0.0, 1.0, 0.0);
+    if (tipCamera == 0) {
+		// CAMERA 0: vedere de ansamblu
+        gluLookAt(0.0, 5.0, 20.0,
+            0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0);
+        glRotatef(rotX, 1.0, 0.0, 0.0);
+        glRotatef(rotY, 0.0, 1.0, 0.0);
+    }
+    else if (tipCamera == 1) {
+        // CAMERA 1: vedere din spate
+        gluLookAt(tX - 15.0, 5.0, 10.0,  
+            tX + 5.0, 0.0, 0.0,
+            0.0, 1.0, 0.0);
+    }
+    else if(tipCamera==2) {
+        //CAMERA 2: vedere din fata
+        gluLookAt(tX + 15.0, 2.0, 8.0,
+            tX, 0.0, 0.0,
+            0.0, 1.0, 0.0);
+    }
+	else {
+        // CAMERA 3: vedere de sus fixa
+        gluLookAt(tX, 15.0, 0.1,
+            tX, 0.0, 0.0,
+            0.0, 1.0, 0.0);
+    }
 
     //PORNIRE LOCOMOTIVA
     glPushMatrix();
@@ -208,6 +237,21 @@ void CALLBACK display(void)
         glVertex3f(r_capat * cosf(rad), h_total, r_capat * sinf(rad));
     }
     glEnd();
+
+	// FUM - doar daca animatia este activa
+    if (animatieActiva) {
+        glPushMatrix();
+        glTranslatef(0.0f, 2.f + fumY, 0.0f);
+        glColor4f(0.8f, 0.8f, 0.8f, 0.5f);
+
+        for (int f = 0; f < 3; f++) {
+            glPushMatrix();
+            glTranslatef(f * 0.15f, 0.0f, f * 0.1f);
+            auxSolidSphere(fumSize + (f * 0.08f));
+            glPopMatrix();
+        }
+        glPopMatrix();
+    }
     glPopMatrix();
 
     // DOMURI CAZAN
@@ -392,7 +436,15 @@ void CALLBACK pornesteAnimatie(void) {
 void CALLBACK animatieSpace(void) {
     if (animatieActiva) {
         tX += 0.005f;      
-        unghiRoti -= 0.5f;  
+        unghiRoti -= 0.5f; 
+
+		fumY += 0.01f;
+		fumSize += 0.0002f;
+
+        if (fumY > 7.0f) {
+            fumY = 0.0f;
+			fumSize = 0.5f;
+        }
 
         if (tX > 20.0f) {
             tX = -20.0f;         
@@ -401,6 +453,13 @@ void CALLBACK animatieSpace(void) {
 
         display();
     }
+}
+
+void CALLBACK schimbaCamera(void) {
+    tipCamera++;
+    if (tipCamera > 3)
+        tipCamera = 0;
+    display();
 }
 
 void CALLBACK myReshape(GLsizei w, GLsizei h)
@@ -426,8 +485,10 @@ int main(int argc, char** argv)
     auxKeyFunc(AUX_A, rotireStanga);    // rotire stanga
     auxKeyFunc(AUX_d, rotireDreapta);    // rotire dreapta
     auxKeyFunc(AUX_D, rotireDreapta);    // rotire dreapta
-    auxKeyFunc(AUX_SPACE, pornesteAnimatie); // Space pentru pornire/oprire animatie
+    auxKeyFunc(AUX_SPACE, pornesteAnimatie); // Space pornire/oprire animatie
     auxIdleFunc(animatieSpace);
+	auxKeyFunc(AUX_c, schimbaCamera); //schimbare camera
+    auxKeyFunc(AUX_C, schimbaCamera); //schimbare camera
 
     myinit();
     auxReshapeFunc(myReshape);
