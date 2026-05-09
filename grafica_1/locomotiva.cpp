@@ -7,16 +7,29 @@
 GLfloat rotX = 20.0f;
 GLfloat rotY = 0.0f;
 
+GLfloat tX = 0.0f;       //translatie pe axa X
+GLfloat viteza = 0.0f;   //viteaza curenta
+
 GLfloat unghiRoti = 0.0f;
 
-void CALLBACK rotireMouse(AUX_EVENTREC* event) {
-    rotY += 0.75f; 
+GLint animatieActiva = 0; //0- oprita, 1- pornita
+
+void CALLBACK mutaStanga(void) { 
+    tX -= 0.1f;
+    unghiRoti += 5.0f; 
 }
 
-void CALLBACK rotireRoti(AUX_EVENTREC* event) {
+void CALLBACK mutaDreapta(void) { 
+    tX += 0.1f;
     unghiRoti -= 5.0f;
-    if (unghiRoti > 360)
-        unghiRoti -= 360;
+}
+
+void CALLBACK rotireStanga(void) { 
+    rotY -= 5.0f; 
+}
+
+void CALLBACK rotireDreapta(void) { 
+    rotY += 5.0f; 
 }
 
 void myinit(void)
@@ -29,13 +42,18 @@ void CALLBACK display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -15.0f);
+    glTranslatef(0.0f, 0.0f, -20.0f);
 
     glRotatef(rotX, 1.0, 0.0, 0.0);
     glRotatef(rotY, 0.0, 1.0, 0.0);
 
+    //PORNIRE LOCOMOTIVA
+    glPushMatrix();
+    glTranslatef(tX, 0.0f, 0.0f);
+
     // CILINDRU PRINCIPAL (CAZAN)
     glPushMatrix();
+
     glColor3f(0.30f, 0.30f, 0.30f);
     glBegin(GL_QUAD_STRIP);
     for (int i = 0; i <= 360; i += 10) {
@@ -122,7 +140,7 @@ void CALLBACK display(void)
         glBegin(GL_POLYGON);
         for (int i = 0; i < 360; i += 20) {
             float rad = i * 3.14159f / 180.0f;
-            glVertex3f(posX + rH * cosf(rad), 1.8f + rH * sinf(rad), zV + offset_z * 1.1f);
+            glVertex3f(posX + rH * cosf(rad), 1.8f + rH * sinf(rad), zV + offset_z * 1.25f);
         }
         glEnd();
     }
@@ -362,8 +380,27 @@ void CALLBACK display(void)
         }
         glPopMatrix();
     }
+	glPopMatrix();
 
     glFlush();
+}
+
+void CALLBACK pornesteAnimatie(void) {
+    animatieActiva = 1 - animatieActiva;
+}
+
+void CALLBACK animatieSpace(void) {
+    if (animatieActiva) {
+        tX += 0.005f;      
+        unghiRoti -= 0.5f;  
+
+        if (tX > 20.0f) {
+            tX = -20.0f;         
+            // animatieActiva = 0; 
+        }
+
+        display();
+    }
 }
 
 void CALLBACK myReshape(GLsizei w, GLsizei h)
@@ -372,7 +409,7 @@ void CALLBACK myReshape(GLsizei w, GLsizei h)
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(52.0, (GLfloat)w / (GLfloat)h, 1.0, 20.0);
+    gluPerspective(52.0, (GLfloat)w / (GLfloat)h, 1.0, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -382,8 +419,16 @@ int main(int argc, char** argv)
     auxInitDisplayMode(AUX_SINGLE | AUX_RGB | AUX_DEPTH);
     auxInitPosition(0, 0, 1000, 680);
     auxInitWindow("Mocanita");
-    auxMouseFunc(AUX_LEFTBUTTON, AUX_MOUSELOC, rotireMouse);
-    auxMouseFunc(AUX_RIGHTBUTTON, AUX_MOUSELOC, rotireRoti);
+
+    auxKeyFunc(AUX_LEFT, mutaStanga);   // Sageata stanga
+    auxKeyFunc(AUX_RIGHT, mutaDreapta); // Sageata dreapta
+	auxKeyFunc(AUX_a, rotireStanga);    // rotire stanga
+    auxKeyFunc(AUX_A, rotireStanga);    // rotire stanga
+    auxKeyFunc(AUX_d, rotireDreapta);    // rotire dreapta
+    auxKeyFunc(AUX_D, rotireDreapta);    // rotire dreapta
+    auxKeyFunc(AUX_SPACE, pornesteAnimatie); // Space pentru pornire/oprire animatie
+    auxIdleFunc(animatieSpace);
+
     myinit();
     auxReshapeFunc(myReshape);
     auxMainLoop(display);
