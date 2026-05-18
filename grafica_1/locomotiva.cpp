@@ -14,27 +14,40 @@ GLfloat unghiRoti = 0.0f;
 
 GLint animatieActiva = 0; //0- oprita, 1- pornita
 
-GLfloat fumY = 0.0f; 
+GLfloat fumY = 0.0f;
 GLfloat fumSize = 0.5f;
 
 GLint tipCamera = 0; // 0 - Normal, 1 - Din spate/lateral, 2 - de sus, 3 - din fata
 
-void CALLBACK mutaStanga(void) { 
+
+void drawCazan();
+void drawCabina();
+void drawSasiu();
+void drawCos();
+void drawFum();
+void drawDomuri();
+void drawBot();
+void drawAcoperis();
+void drawPlug();
+void drawRoti();
+void drawBiele();
+
+void CALLBACK mutaStanga(void) {
     tX -= 0.1f;
-    unghiRoti += 5.0f; 
+    unghiRoti += 5.0f;
 }
 
-void CALLBACK mutaDreapta(void) { 
+void CALLBACK mutaDreapta(void) {
     tX += 0.1f;
     unghiRoti -= 5.0f;
 }
 
-void CALLBACK rotireStanga(void) { 
-    rotY -= 5.0f; 
+void CALLBACK rotireStanga(void) {
+    rotY -= 5.0f;
 }
 
-void CALLBACK rotireDreapta(void) { 
-    rotY += 5.0f; 
+void CALLBACK rotireDreapta(void) {
+    rotY += 5.0f;
 }
 
 void myinit(void)
@@ -47,10 +60,9 @@ void CALLBACK display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    //glTranslatef(0.0f, 0.0f, -20.0f);
 
     if (tipCamera == 0) {
-		// CAMERA 0: vedere de ansamblu
+        // CAMERA 0: vedere de ansamblu
         gluLookAt(0.0, 5.0, 20.0,
             0.0, 0.0, 0.0,
             0.0, 1.0, 0.0);
@@ -59,30 +71,44 @@ void CALLBACK display(void)
     }
     else if (tipCamera == 1) {
         // CAMERA 1: vedere din spate
-        gluLookAt(tX - 15.0, 5.0, 10.0,  
+        gluLookAt(tX - 15.0, 5.0, 10.0,
             tX + 5.0, 0.0, 0.0,
             0.0, 1.0, 0.0);
     }
-    else if(tipCamera==2) {
+    else if (tipCamera == 2) {
         //CAMERA 2: vedere din fata
         gluLookAt(tX + 15.0, 2.0, 8.0,
             tX, 0.0, 0.0,
             0.0, 1.0, 0.0);
     }
-	else {
+    else {
         // CAMERA 3: vedere de sus fixa
         gluLookAt(tX, 15.0, 0.1,
             tX, 0.0, 0.0,
             0.0, 1.0, 0.0);
     }
 
-    //PORNIRE LOCOMOTIVA
     glPushMatrix();
     glTranslatef(tX, 0.0f, 0.0f);
 
-    // CILINDRU PRINCIPAL (CAZAN)
-    glPushMatrix();
+    drawCazan();
+    drawCabina();
+    drawSasiu();
+    drawCos();
+    drawDomuri();
+    drawBot();
+    drawAcoperis();
+    drawPlug();
+    drawRoti();
+    drawBiele();
 
+    glPopMatrix();
+
+    glFlush();
+}
+
+void drawCazan() {
+    glPushMatrix();
     glColor3f(0.30f, 0.30f, 0.30f);
     glBegin(GL_QUAD_STRIP);
     for (int i = 0; i <= 360; i += 10) {
@@ -94,8 +120,9 @@ void CALLBACK display(void)
     }
     glEnd();
     glPopMatrix();
+}
 
-    // CABINA MECANIC
+void drawCabina() {
     glPushMatrix();
     glColor3f(0.30f, 0.30f, 0.30f);
     float r = 1.1f;
@@ -125,7 +152,6 @@ void CALLBACK display(void)
     }
     glEnd();
 
-
     float z_perete = 1.49f;
 
     // USA MECANIC
@@ -148,7 +174,7 @@ void CALLBACK display(void)
     glEnd();
 
     // GEAMURI LATERALE 
-    float rH = 0.5f; 
+    float rH = 0.5f;
     for (int side = 0; side < 2; side++) {
         float zV = (side == 0) ? z_perete : -z_perete;
         float offset_z = (side == 0) ? 0.02f : -0.02f;
@@ -193,8 +219,9 @@ void CALLBACK display(void)
     glEnd();
 
     glPopMatrix();
+}
 
-    // SASIU (PARTEA INFERIOARA)
+void drawSasiu() {
     glPushMatrix();
     glColor3f(0.25f, 0.25f, 0.25f);
     glTranslatef(0.0f, -1.5f, 0.0f);
@@ -207,8 +234,9 @@ void CALLBACK display(void)
     }
     glEnd();
     glPopMatrix();
+}
 
-    // COS DE FUM
+void drawCos() {
     glPushMatrix();
     glColor3f(0.3f, 0.3f, 0.3f);
     glTranslatef(6.5f, 1.1f, 0.0f);
@@ -238,23 +266,28 @@ void CALLBACK display(void)
     }
     glEnd();
 
-	// FUM - doar daca animatia este activa
     if (animatieActiva) {
-        glPushMatrix();
-        glTranslatef(0.0f, 2.f + fumY, 0.0f);
-        glColor4f(0.8f, 0.8f, 0.8f, 0.5f);
+        drawFum();
+    }
 
-        for (int f = 0; f < 3; f++) {
-            glPushMatrix();
-            glTranslatef(f * 0.15f, 0.0f, f * 0.1f);
-            auxSolidSphere(fumSize + (f * 0.08f));
-            glPopMatrix();
-        }
+    glPopMatrix();
+}
+
+void drawFum() {
+    glPushMatrix();
+    glTranslatef(0.0f, 2.f + fumY, 0.0f);
+    glColor4f(0.8f, 0.8f, 0.8f, 0.5f);
+
+    for (int f = 0; f < 3; f++) {
+        glPushMatrix();
+        glTranslatef(f * 0.15f, 0.0f, f * 0.1f);
+        auxSolidSphere(fumSize + (f * 0.08f));
         glPopMatrix();
     }
     glPopMatrix();
+}
 
-    // DOMURI CAZAN
+void drawDomuri() {
     glPushMatrix();
     glColor3f(0.25f, 0.25f, 0.25f);
     glTranslatef(3.5f, 1.1f, 0.0f);
@@ -294,8 +327,9 @@ void CALLBACK display(void)
     }
     glEnd();
     glPopMatrix();
+}
 
-	// BOT LOCOMOTIVA
+void drawBot() {
     glPushMatrix();
     glColor3f(0.2f, 0.2f, 0.2f);
     glTranslatef(7.5f, 0.0f, 0.0f);
@@ -309,8 +343,9 @@ void CALLBACK display(void)
     }
     glEnd();
     glPopMatrix();
+}
 
-    // ACOPERIS CABINA
+void drawAcoperis() {
     glPushMatrix();
     glColor3f(0.2f, 0.2f, 0.2f);
     glTranslatef(0.0f, 3.2f, 0.0f);
@@ -325,8 +360,9 @@ void CALLBACK display(void)
     }
     glEnd();
     glPopMatrix();
+}
 
-    // PLUG
+void drawPlug() {
     glPushMatrix();
     glColor3f(0.2f, 0.2f, 0.2f);
     glTranslatef(6.81f, -1.2f, 0.0f);
@@ -334,27 +370,28 @@ void CALLBACK display(void)
     float inaltime_p = 1.0f;
     float lungime_e = 0.85f;
     glBegin(GL_TRIANGLES);
-        glVertex3f(0.0f, 0.0f, latime_p);
-        glVertex3f(lungime_e, -inaltime_p, 0.0f);
-        glVertex3f(0.0f, -inaltime_p, latime_p);
-        glVertex3f(0.0f, 0.0f, -latime_p);
-        glVertex3f(lungime_e, -inaltime_p, 0.0f);
-        glVertex3f(0.0f, -inaltime_p, -latime_p);
+    glVertex3f(0.0f, 0.0f, latime_p);
+    glVertex3f(lungime_e, -inaltime_p, 0.0f);
+    glVertex3f(0.0f, -inaltime_p, latime_p);
+    glVertex3f(0.0f, 0.0f, -latime_p);
+    glVertex3f(lungime_e, -inaltime_p, 0.0f);
+    glVertex3f(0.0f, -inaltime_p, -latime_p);
     glEnd();
     glBegin(GL_QUADS);
-        glVertex3f(0.0f, 0.0f, latime_p);
-        glVertex3f(lungime_e, -inaltime_p, 0.0f);
-        glVertex3f(lungime_e, -inaltime_p, 0.0f);
-        glVertex3f(0.0f, 0.0f, -latime_p);
+    glVertex3f(0.0f, 0.0f, latime_p);
+    glVertex3f(lungime_e, -inaltime_p, 0.0f);
+    glVertex3f(lungime_e, -inaltime_p, 0.0f);
+    glVertex3f(0.0f, 0.0f, -latime_p);
     glEnd();
     glBegin(GL_POLYGON);
-        glVertex3f(0.0f, -inaltime_p, latime_p);
-        glVertex3f(lungime_e, -inaltime_p, 0.0f);
-        glVertex3f(0.0f, -inaltime_p, -latime_p);
+    glVertex3f(0.0f, -inaltime_p, latime_p);
+    glVertex3f(lungime_e, -inaltime_p, 0.0f);
+    glVertex3f(0.0f, -inaltime_p, -latime_p);
     glEnd();
     glPopMatrix();
+}
 
-    // ROTI MOCANITA
+void drawRoti() {
     float pozitiiX[] = { 1.5f, 3.4f, 5.3f };
     float razaRoata = 0.9f;
     float distantaZ = 1.3f;
@@ -388,25 +425,29 @@ void CALLBACK display(void)
             glPopMatrix();
         }
     }
+}
 
-    // BIELE TRANSMISIE 
-    float distantaManivela = 0.3f; 
+void drawBiele() {
+    float pozitiiX[] = { 1.5f, 3.4f, 5.3f };
+    float distantaZ = 1.3f;
+
+    float distantaManivela = 0.3f;
     float grosimeBiela = 0.15f;
 
     float offset_x = distantaManivela * cosf(unghiRoti * 3.14159f / 180.0f);
     float offset_y = distantaManivela * sinf(unghiRoti * 3.14159f / 180.0f);
 
     for (int j = 0; j < 2; j++) {
-        float z_pos = (j == 0) ? (distantaZ + 0.15f) : (-distantaZ - 0.15f); 
+        float z_pos = (j == 0) ? (distantaZ + 0.15f) : (-distantaZ - 0.15f);
 
         glPushMatrix();
-        glColor3f(0.5f, 0.5f, 0.5f); 
+        glColor3f(0.5f, 0.5f, 0.5f);
 
         glBegin(GL_QUADS);
-            glVertex3f(pozitiiX[0] + offset_x, -1.9f + offset_y + grosimeBiela, z_pos);
-            glVertex3f(pozitiiX[2] + offset_x, -1.9f + offset_y + grosimeBiela, z_pos);
-            glVertex3f(pozitiiX[2] + offset_x, -1.9f + offset_y - grosimeBiela, z_pos);
-            glVertex3f(pozitiiX[0] + offset_x, -1.9f + offset_y - grosimeBiela, z_pos);
+        glVertex3f(pozitiiX[0] + offset_x, -1.9f + offset_y + grosimeBiela, z_pos);
+        glVertex3f(pozitiiX[2] + offset_x, -1.9f + offset_y + grosimeBiela, z_pos);
+        glVertex3f(pozitiiX[2] + offset_x, -1.9f + offset_y - grosimeBiela, z_pos);
+        glVertex3f(pozitiiX[0] + offset_x, -1.9f + offset_y - grosimeBiela, z_pos);
         glEnd();
 
         // BURDUF BIELE
@@ -415,18 +456,15 @@ void CALLBACK display(void)
             glTranslatef(pozitiiX[i] + offset_x, -1.9f + offset_y, z_pos);
             glColor3f(0.2f, 0.2f, 0.2f);
             glBegin(GL_POLYGON);
-                for (int k = 0; k < 360; k += 30) {
-                    float rad = k * 3.14159f / 180.0f;
-                    glVertex3f(0.2f * cosf(rad), 0.2f * sinf(rad), (j == 0 ? 0.02f : -0.02f));
-                }
+            for (int k = 0; k < 360; k += 30) {
+                float rad = k * 3.14159f / 180.0f;
+                glVertex3f(0.2f * cosf(rad), 0.2f * sinf(rad), (j == 0 ? 0.02f : -0.02f));
+            }
             glEnd();
             glPopMatrix();
         }
         glPopMatrix();
     }
-	glPopMatrix();
-
-    glFlush();
 }
 
 void CALLBACK pornesteAnimatie(void) {
@@ -435,19 +473,19 @@ void CALLBACK pornesteAnimatie(void) {
 
 void CALLBACK animatieSpace(void) {
     if (animatieActiva) {
-        tX += 0.005f;      
-        unghiRoti -= 0.5f; 
+        tX += 0.005f;
+        unghiRoti -= 0.5f;
 
-		fumY += 0.01f;
-		fumSize += 0.0002f;
+        fumY += 0.01f;
+        fumSize += 0.0002f;
 
         if (fumY > 7.0f) {
             fumY = 0.0f;
-			fumSize = 0.5f;
+            fumSize = 0.5f;
         }
 
         if (tX > 20.0f) {
-            tX = -20.0f;         
+            tX = -20.0f;
             // animatieActiva = 0; 
         }
 
@@ -481,13 +519,13 @@ int main(int argc, char** argv)
 
     auxKeyFunc(AUX_LEFT, mutaStanga);   // Sageata stanga
     auxKeyFunc(AUX_RIGHT, mutaDreapta); // Sageata dreapta
-	auxKeyFunc(AUX_a, rotireStanga);    // rotire stanga
+    auxKeyFunc(AUX_a, rotireStanga);    // rotire stanga
     auxKeyFunc(AUX_A, rotireStanga);    // rotire stanga
     auxKeyFunc(AUX_d, rotireDreapta);    // rotire dreapta
     auxKeyFunc(AUX_D, rotireDreapta);    // rotire dreapta
     auxKeyFunc(AUX_SPACE, pornesteAnimatie); // Space pornire/oprire animatie
     auxIdleFunc(animatieSpace);
-	auxKeyFunc(AUX_c, schimbaCamera); //schimbare camera
+    auxKeyFunc(AUX_c, schimbaCamera); //schimbare camera
     auxKeyFunc(AUX_C, schimbaCamera); //schimbare camera
 
     myinit();
